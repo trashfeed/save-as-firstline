@@ -82,7 +82,7 @@ export default class PathBuilder {
 			}
 			return vscode.workspace.applyEdit(edit).then(success => {
 				if (success && this.editor) {
-					this.editor.hide();
+					// this.editor.hide();
 					vscode.window.showTextDocument(doc).then(doc => {
 						doc.selection = new vscode.Selection(position, position);
 						vscode.commands.executeCommand("workbench.action.files.save");

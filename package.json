@@ -9,7 +9,7 @@
     "bugs": {
         "url": "https://github.com/trashfeed/save-as-firstline/issues"
     },
-    "version": "0.0.3",
+    "version": "0.0.4",
     "publisher": "trash-feed",
     "engines": {
         "vscode": "^1.20.0"
