@@ -55,6 +55,7 @@ class PathBuilder {
             this.createFolder(this.path);
         }
         const uri = vscode.Uri.parse('untitled:' + this.path);
+        const position = this.editor.selection.active;
         vscode.workspace.openTextDocument(uri).then((doc) => {
             const edit = new vscode.WorkspaceEdit();
             if (this.editor) {
@@ -63,8 +64,10 @@ class PathBuilder {
             return vscode.workspace.applyEdit(edit).then(success => {
                 if (success && this.editor) {
                     this.editor.hide();
-                    vscode.window.showTextDocument(doc);
-                    vscode.commands.executeCommand("workbench.action.files.save");
+                    vscode.window.showTextDocument(doc).then(doc => {
+                        doc.selection = new vscode.Selection(position, position);
+                        vscode.commands.executeCommand("workbench.action.files.save");
+                    });
                 }
             });
         });
