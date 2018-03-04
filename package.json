@@ -1,7 +1,7 @@
 {
     "name": "save-as-firstline",
     "displayName": "save-as-firstline",
-    "description": "",
+    "description": "`save-as-firstline` is use the first line as the file name to quickly create the file.",
     "repository": {
         "type": "git",
         "url": "https://github.com/trashfeed/save-as-firstline"

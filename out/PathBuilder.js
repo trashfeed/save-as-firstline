@@ -10,12 +10,13 @@ class PathBuilder {
         this.editor = vscode.window.activeTextEditor;
         this.packageName = packageName;
         this.config = vscode.workspace.getConfiguration(this.packageName);
-        this.build();
     }
     build() {
+        this.editor = vscode.window.activeTextEditor;
         if (!this.editor || !this.config) {
             return;
         }
+        this.clear();
         // body
         let editorText = this.editor.document.getText().replace(/\r\n?/g, "\n");
         if (editorText.length < 1) {
@@ -43,9 +44,10 @@ class PathBuilder {
             this.headingText = line;
             break;
         }
+        this.buildPath();
     }
     save() {
-        this.buildPath();
+        this.build();
         if (this.path.length < 1 || !this.editor) {
             return;
         }
@@ -59,8 +61,10 @@ class PathBuilder {
                 edit.insert(uri, new vscode.Position(0, 0), this.editor.document.getText());
             }
             return vscode.workspace.applyEdit(edit).then(success => {
-                if (success) {
+                if (success && this.editor) {
+                    this.editor.hide();
                     vscode.window.showTextDocument(doc);
+                    vscode.commands.executeCommand("workbench.action.files.save");
                 }
             });
         });
@@ -88,7 +92,11 @@ class PathBuilder {
         if (!this.editor || this.editor.document.getText().length === 0) {
             return;
         }
-        this.clear();
+        let path = vscode.workspace.rootPath;
+        if (!path) {
+            vscode.window.showErrorMessage("please opened folder.");
+            return;
+        }
         let filename = this.buildFilename();
         if (filename.length === 0) {
             return;
@@ -128,7 +136,11 @@ class PathBuilder {
         return filename;
     }
     clear() {
+        this.headingText = "";
         this.path = "";
+    }
+    dispose() {
+        this.clear();
     }
 }
 exports.default = PathBuilder;

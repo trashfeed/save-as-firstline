@@ -9,22 +9,25 @@ export default class PathBuilder {
 	private packageName: string = "";
 	private headingText: string = "";
 	private config: vscode.WorkspaceConfiguration;
-	private editor =  vscode.window.activeTextEditor;
+	private editor = vscode.window.activeTextEditor;
 
 	constructor(packageName: string) {
 		this.packageName = packageName;
 		this.config = vscode.workspace.getConfiguration(this.packageName);
-		this.build();
+
 	}
 
 	private build(): void {
 
+		this.editor = vscode.window.activeTextEditor;
 		if (!this.editor || !this.config) {
 			return;
 		}
 
+		this.clear();
+
 		// body
-		let editorText:string = this.editor.document.getText().replace(/\r\n?/g, "\n");
+		let editorText: string = this.editor.document.getText().replace(/\r\n?/g, "\n");
 		if (editorText.length < 1) {
 			return;
 		}
@@ -52,34 +55,39 @@ export default class PathBuilder {
 			this.headingText = line;
 			break;
 		}
+
+		this.buildPath();
 	}
 
 	public save(): void {
 
-		this.buildPath();
+		this.build();
+
 		if (this.path.length < 1 || !this.editor) {
 			return;
 		}
 
-		if(!this.isExist(this.path)){
+		if (!this.isExist(this.path)) {
 			this.createFolder(this.path);
 		}
 
 		const uri = vscode.Uri.parse('untitled:' + this.path);
-		vscode.workspace.openTextDocument(uri).then((doc:vscode.TextDocument) => {
+		vscode.workspace.openTextDocument(uri).then((doc: vscode.TextDocument) => {
 			const edit = new vscode.WorkspaceEdit();
-				if (this.editor) {
-					edit.insert(uri, new vscode.Position(0, 0), this.editor.document.getText());
+			if (this.editor) {
+				edit.insert(uri, new vscode.Position(0, 0), this.editor.document.getText());
+			}
+			return vscode.workspace.applyEdit(edit).then(success => {
+				if (success && this.editor) {
+					this.editor.hide();
+					vscode.window.showTextDocument(doc);
+					vscode.commands.executeCommand("workbench.action.files.save");
 				}
-				 return vscode.workspace.applyEdit(edit).then(success => {
-						if (success) {
-							vscode.window.showTextDocument(doc);
-						}
-				});
+			});
 		});
-	}	
+	}
 
-	private createFolder(fullPath:string): boolean {
+	private createFolder(fullPath: string): boolean {
 		let dirName = this.getDirectoryName(fullPath);
 		if (this.isExist(dirName)) {
 			return true;
@@ -88,13 +96,13 @@ export default class PathBuilder {
 		return true;
 	}
 
-	private getDirectoryName(fullPath:string):string {
+	private getDirectoryName(fullPath: string): string {
 		let path = require('path');
 		let dir = path.dirname(fullPath);
 		return dir;
 	}
 
-	private isExist(path:string): boolean {
+	private isExist(path: string): boolean {
 		if (fs.existsSync(path)) {
 			return true;
 		}
@@ -106,8 +114,13 @@ export default class PathBuilder {
 		if (!this.editor || this.editor.document.getText().length === 0) {
 			return;
 		}
+		let path = vscode.workspace.rootPath;
+		if (!path) {
+			vscode.window.showErrorMessage("please opened folder.");
+			return;
+		}
 
-		this.clear();
+
 
 		let filename: string = this.buildFilename();
 		if (filename.length === 0) {
@@ -157,7 +170,12 @@ export default class PathBuilder {
 	}
 
 	private clear(): void {
+		this.headingText = "";
 		this.path = "";
+	}
+
+	public dispose(): void {
+		this.clear();
 	}
 
 }

@@ -2,14 +2,18 @@
 import * as vscode from 'vscode';
 import PathBuilder from './PathBuilder';
 
+let builder:PathBuilder;
 export function activate(context: vscode.ExtensionContext) {
+    builder = new PathBuilder("save.as.firstline");
     let disposable = vscode.commands.registerCommand('extension.saveAsFirstline', () => {
-        save(context);
+        builder.save();
     });
     context.subscriptions.push(disposable);
 }
 
-function save(ontext: vscode.ExtensionContext) {
-    let builder: PathBuilder = new PathBuilder("save.as.firstline");
-	builder.save();
+export function deactivate() {
+    if (builder) {
+        builder.dispose();
+    }    
 }
+
