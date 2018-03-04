@@ -39,11 +39,6 @@
                     "type": "boolean",
                     "default": false,
                     "description": "use filename at first line or heading line (e.g. #) of markdown"
-                },
-                "save.as.firstline.showSaveNotification": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "show save success notification"
                 }
             }
         }
