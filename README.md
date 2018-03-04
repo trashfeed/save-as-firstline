@@ -1,13 +1,13 @@
-# save-as-heading
-`save-as-heading` is use the first line as the file name to quickly create or overwrite the file.
+# save-as-firstline
+`save-as-firstline` is use the first line as the file name to quickly create or overwrite the file.
 
 ## Installation
-https://marketplace.visualstudio.com/items?itemName=trashfeed.save-as-firstline
+https://marketplace.visualstudio.com/items?itemName=trash-feed.save-as-firstline
 
 
 ## Feature
 - this extension is use filename at first line to create file.
-- or, this extension is  use file name of heading line (e.g. #) of markdown  create file.
+- or, this extension is  use file name of first line (e.g. #) of markdown  create file.
 - Using markdown and txt, can quickly create a document for each file.
 
 ## Usage
@@ -54,7 +54,7 @@ foo bar fuga.
   - create file name of extension.
   - default `.md`.
 - `save.as.firstline.isMarkdownHeader`
-  - use filename at first line or heading line (e.g. #) of markdown.
+  - use filename at first line or first line (e.g. #) of markdown.
   - default `first line`.
 
 

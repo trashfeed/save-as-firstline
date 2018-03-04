@@ -2,8 +2,15 @@
     "name": "save-as-firstline",
     "displayName": "save-as-firstline",
     "description": "",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/trashfeed/save-as-firstline"
+    },
+    "bugs": {
+        "url": "https://github.com/trashfeed/save-as-firstline/issues"
+    },
     "version": "0.0.1",
-    "publisher": "trashfeed",
+    "publisher": "trash-feed",
     "engines": {
         "vscode": "^1.20.0"
     },
