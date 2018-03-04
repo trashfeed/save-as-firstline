@@ -1,0 +1,65 @@
+{
+    "name": "save-as-firstline",
+    "displayName": "save-as-firstline",
+    "description": "",
+    "version": "0.0.1",
+    "publisher": "trashfeed",
+    "engines": {
+        "vscode": "^1.20.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onCommand:extension.saveAsFirstline"
+    ],
+    "main": "./out/extension",
+    "contributes": {
+        "commands": [{
+            "command": "extension.saveAsFirstline",
+            "title": "Save as first line"
+        }],
+        "keybindings": [
+            {
+                "command": "extension.saveAsFirstline",
+                "key": "ctrl+shift+h",
+                "mac": "cmd+shift+h",
+                "when": "editorTextFocus"
+            }],
+            "configuration": {
+            "type": "object",
+            "title": "Save as firstline",
+            "properties": {
+                "save.as.firstline.extension": {
+                    "type": "string",
+                    "default": ".md",
+                    "description": "save default extension"
+                },
+                "save.as.firstline.isMarkdownHeader": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "use filename at first line or heading line (e.g. #) of markdown"
+                },
+                "save.as.firstline.showSaveNotification": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "show save success notification"
+                }
+            }
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "npm run compile && node ./node_modules/vscode/bin/test"
+    },
+    "devDependencies": {
+        "typescript": "^2.6.1",
+        "vscode": "^1.1.6",
+        "tslint": "^5.8.0",
+        "@types/node": "^7.0.43",
+        "@types/mocha": "^2.2.42"
+    }
+}
