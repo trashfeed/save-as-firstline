@@ -23,7 +23,7 @@ class PathBuilder {
             return;
         }
         // heading
-        let useMarkdownHeader = this.config.get(this.packageName + '.isMarkdownHeader', false);
+        let useMarkdownHeader = this.config.get('isMarkdownHeader', false);
         let lines = editorText.split("\n");
         for (var key in lines) {
             let line = lines[key];
@@ -54,6 +54,10 @@ class PathBuilder {
         if (!this.isExist(this.path)) {
             this.createFolder(this.path);
         }
+        else {
+            vscode.commands.executeCommand("workbench.action.files.save");
+            return;
+        }
         const uri = vscode.Uri.parse('untitled:' + this.path);
         const position = this.editor.selection.active;
         vscode.workspace.openTextDocument(uri).then((doc) => {
@@ -63,7 +67,9 @@ class PathBuilder {
             }
             return vscode.workspace.applyEdit(edit).then(success => {
                 if (success && this.editor) {
-                    // this.editor.hide();
+                    if (this.editor.document.isUntitled) {
+                        vscode.commands.executeCommand("workbench.action.files.revert");
+                    }
                     vscode.window.showTextDocument(doc).then(doc => {
                         doc.selection = new vscode.Selection(position, position);
                         vscode.commands.executeCommand("workbench.action.files.save");
@@ -77,7 +83,8 @@ class PathBuilder {
         if (this.isExist(dirName)) {
             return true;
         }
-        fs.mkdirSync(dirName);
+        let mkdirp = require('mkdirp');
+        mkdirp(dirName);
         return true;
     }
     getDirectoryName(fullPath) {
@@ -123,7 +130,7 @@ class PathBuilder {
             return "";
         }
         // ignore
-        let ignores = [":", "\\*", "\\?", "<", ">", "|", " "];
+        let ignores = [":", "\\*", "\\?", "<", ">", "|", " ", "#"];
         for (var i = 0; i < ignores.length; i++) {
             let regExp = new RegExp(ignores[i], "g");
             filename = filename.replace(regExp, "");
@@ -134,7 +141,7 @@ class PathBuilder {
         // dir
         filename = filename.replace("\\", "/");
         // full
-        const extension = this.config.get(this.packageName + '.extension', ".md");
+        const extension = this.config.get('extension', ".md");
         filename = filename + extension;
         return filename;
     }

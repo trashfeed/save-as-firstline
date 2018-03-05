@@ -19,9 +19,9 @@ foo bar fuga.
 ...
 ...
 ```
-2. `cmd+shift+h` on OSX/`ctrl+shift+h` on Windows
-3. A file name `title.md` is created or overrided.
-> to change `.md` to `Setting` - `Extension`
+2. `cmd+shift+h` on OSX or `ctrl+shift+h` on Windows
+3. A file name `title.md` is created or overrided. 
+> the extension change is `save.as.firstline.extension` at config.(default:`.md`)  
 
 ### Example2
 1. input the following text.
@@ -56,7 +56,6 @@ foo bar fuga.
 - `save.as.firstline.isMarkdownHeader`
   - use filename at first line or first line (e.g. #) of markdown.
   - default `first line`.
-
 
 
 ## Licence
