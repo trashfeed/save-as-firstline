@@ -13,7 +13,7 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() {
-    if (builder) {
+    if (builder) { 
         builder.dispose();
     }    
 }

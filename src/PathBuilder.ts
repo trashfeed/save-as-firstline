@@ -13,7 +13,7 @@ export default class PathBuilder {
 	private config: vscode.WorkspaceConfiguration;
 	private editor = vscode.window.activeTextEditor;
 
-	constructor(packageName: string) {
+	constructor(packageName: string) {		
 		this.packageName = packageName;
 		this.config = vscode.workspace.getConfiguration(this.packageName);
 	}
