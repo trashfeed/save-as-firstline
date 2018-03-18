@@ -2,28 +2,27 @@
 
 import * as vscode from "vscode";
 import fs = require("fs");
+import path = require('path');
+import mkdirp = require('mkdirp');
 
 export default class PathBuilder {
 
-	public path: string = "";
+	public fullPath: string = "";
 	private packageName: string = "";
-	private headingText: string = "";
+	private headingText: string = ""; 
 	private config: vscode.WorkspaceConfiguration;
 	private editor = vscode.window.activeTextEditor;
 
 	constructor(packageName: string) {
 		this.packageName = packageName;
 		this.config = vscode.workspace.getConfiguration(this.packageName);
-
 	}
 
 	private build(): void {
-
 		this.editor = vscode.window.activeTextEditor;
 		if (!this.editor || !this.config) {
 			return;
 		}
-
 		this.clear();
 
 		// body
@@ -50,7 +49,7 @@ export default class PathBuilder {
 				if (seek < 1) {
 					continue;
 				}
-				line = line.substring(seek + 1, line.length);
+				line = line.substring(seek + 1, line.length); 
 			}
 			this.headingText = line;
 			break;
@@ -63,20 +62,19 @@ export default class PathBuilder {
 
 		this.build();
 
-		if (this.path.length < 1 || !this.editor) {
+		if (this.fullPath.length < 1 || !this.editor) {
 			return;
 		}
 
-		if (!this.isExist(this.path)) {
-			this.createFolder(this.path);
+		if (!this.isExist(this.fullPath)) {
+			this.createFolder(this.fullPath);
 		} else {
 			vscode.commands.executeCommand("workbench.action.files.save");
 			return;
-		}
+		} 
 
-		const uri = vscode.Uri.parse('untitled:' + this.path);
+		const uri = vscode.Uri.parse('untitled:' + this.fullPath);
 		const position: vscode.Position = this.editor.selection.active;
-
 		vscode.workspace.openTextDocument(uri).then((doc: vscode.TextDocument) => {
 			const edit = new vscode.WorkspaceEdit();
 			if (this.editor) {
@@ -85,33 +83,33 @@ export default class PathBuilder {
 			}
 			return vscode.workspace.applyEdit(edit).then(success => {
 				if (success && this.editor) {
-
 					if (this.editor.document.isUntitled) {
-						vscode.commands.executeCommand("workbench.action.files.revert");
+						vscode.commands.executeCommand("workbench.action.revertAndCloseActiveEditor").then(() =>
+							vscode.window.showTextDocument(doc).then(doc => {
+								doc.selection = new vscode.Selection(position, position);
+								vscode.commands.executeCommand("workbench.action.files.save");
+							})
+						);
 					} 
-					
-					vscode.window.showTextDocument(doc).then(doc => {
-						doc.selection = new vscode.Selection(position, position);
-						vscode.commands.executeCommand("workbench.action.files.save");
-					});
 				}
 			});
 		});
 	}
 
 	private createFolder(fullPath: string): boolean {
+
 		let dirName = this.getDirectoryName(fullPath);
 		if (this.isExist(dirName)) {
 			return true;
 		}
-
-		let mkdirp = require('mkdirp');
-		mkdirp(dirName);
+	
+		mkdirp(dirName, function (err) {
+		});
 		return true;
 	}
 
 	private getDirectoryName(fullPath: string): string {
-		let path = require('path');
+		
 		let dir = path.dirname(fullPath);
 		return dir;
 	}
@@ -128,8 +126,9 @@ export default class PathBuilder {
 		if (!this.editor || this.editor.document.getText().length === 0) {
 			return;
 		}
-		let path = vscode.workspace.rootPath;
-		if (!path) {
+
+		let rootPath = vscode.workspace.rootPath;
+		if (!rootPath) {
 			vscode.window.showErrorMessage("please opened folder.");
 			return;
 		}
@@ -142,7 +141,7 @@ export default class PathBuilder {
 		if (filename.slice(0, 1) !== "/") {
 			folderPath += "/";
 		}
-		this.path = folderPath + filename;
+		this.fullPath = folderPath + filename;
 
 	}
 
@@ -183,7 +182,7 @@ export default class PathBuilder {
 
 	private clear(): void {
 		this.headingText = "";
-		this.path = "";
+		this.fullPath = "";
 	}
 
 	public dispose(): void {

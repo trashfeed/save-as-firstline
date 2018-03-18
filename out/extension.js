@@ -13,6 +13,7 @@ function activate(context) {
 exports.activate = activate;
 function deactivate() {
     if (builder) {
+        console.log("start first-save");
         builder.dispose();
     }
 }

@@ -31,7 +31,7 @@ foo bar fuga.
 ...
 ...
 ```
-2. `cmd+shift+h` on OSX/`ctrl+shift+h` on Windows
+2. `cmd+shift+h` on OSX or `ctrl+shift+h` on Windows
 3. A file path `/directory/directory/title.md` is created or overrided. a root of the path is the project folder.
 
 
@@ -45,7 +45,7 @@ foo bar fuga.
 ...
 ...
 ```
-2. `cmd+shift+h` on OSX/`ctrl+shift+h` on Windows
+2. `cmd+shift+h` on OSX or `ctrl+shift+h` on Windows
 3. A file name `head1.md` is created or overrided.
 
 

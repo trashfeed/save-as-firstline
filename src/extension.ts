@@ -4,9 +4,10 @@ import PathBuilder from './PathBuilder';
 
 let builder:PathBuilder;
 export function activate(context: vscode.ExtensionContext) {
+
     builder = new PathBuilder("save.as.firstline");
     let disposable = vscode.commands.registerCommand('extension.saveAsFirstline', () => {
-        builder.save();
+        builder.save();  
     });
     context.subscriptions.push(disposable);
 }
