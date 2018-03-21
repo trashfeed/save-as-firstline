@@ -5,6 +5,7 @@ import fs = require("fs");
 import path = require('path');
 import mkdirp = require('mkdirp');
 
+
 export default class PathBuilder {
 
 	public fullPath: string = "";
