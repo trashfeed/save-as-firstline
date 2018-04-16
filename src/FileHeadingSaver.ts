@@ -5,31 +5,37 @@ import fs = require("fs");
 import path = require('path');
 import mkdirp = require('mkdirp');
 
+export default class FileHeadingSaver {
 
-export default class PathBuilder {
-
-	public fullPath: string = "";
 	private packageName: string = "";
-	private headingText: string = ""; 
 	private config: vscode.WorkspaceConfiguration;
 	private editor = vscode.window.activeTextEditor;
 
-	constructor(packageName: string) {		
+	constructor(packageName: string) {
 		this.packageName = packageName;
 		this.config = vscode.workspace.getConfiguration(this.packageName);
 	}
 
-	private build(): void {
+	public save(): void {
+
+		let fullpath: string = this.buildPath();
+
+		this.saveDocument(fullpath);
+
+	}
+
+	private findHeadingText(): string {
+
+		let headingText: string = "";
 		this.editor = vscode.window.activeTextEditor;
 		if (!this.editor || !this.config) {
-			return;
+			return headingText;
 		}
-		this.clear();
 
 		// body
 		let editorText: string = this.editor.document.getText().replace(/\r\n?/g, "\n");
 		if (editorText.length < 1) {
-			return;
+			return headingText;
 		}
 
 		// heading
@@ -40,7 +46,6 @@ export default class PathBuilder {
 			if (line.length < 1) {
 				continue;
 			}
-
 			if (useMarkdownHeader) {
 				let headLine: string = line.slice(0, 1);
 				if (headLine !== "#") {
@@ -50,38 +55,54 @@ export default class PathBuilder {
 				if (seek < 1) {
 					continue;
 				}
-				line = line.substring(seek + 1, line.length); 
+				line = line.substring(seek + 1, line.length);
 			}
-			this.headingText = line;
+			headingText = line;
 			break;
 		}
 
-		this.buildPath();
+		return headingText;
+
 	}
 
-	public save(): void {
+	private saveFile() {
+		vscode.commands.executeCommand("workbench.action.files.save");		
+	}
 
-		this.build();
+	private saveDocument(fullPath: string): void {
 
-		if (this.fullPath.length < 1 || !this.editor) {
+		if (!this.editor) {
 			return;
 		}
 
-		if (!this.isExist(this.fullPath)) {
-			this.createFolder(this.fullPath);
+		if (this.isExist(fullPath)) {
+			this.saveFile();
 		} else {
-			vscode.commands.executeCommand("workbench.action.files.save");
-			return;
-		} 
+			this.saveAsFile(fullPath);
+		}
+	}
 
-		const uri = vscode.Uri.parse('untitled:' + this.fullPath);
+	private saveAsFile(fullPath:string){
+
+		if (!this.editor) {
+			return;
+		}
+
+		// create folder
+		this.createFolder(fullPath);
+
+		// open doc
+		const uri = vscode.Uri.parse('untitled:' + fullPath);
 		const position: vscode.Position = this.editor.selection.active;
 		vscode.workspace.openTextDocument(uri).then((doc: vscode.TextDocument) => {
+
+			// copy text
 			const edit = new vscode.WorkspaceEdit();
 			if (this.editor) {
 				edit.insert(uri, new vscode.Position(0, 0), this.editor.document.getText());
-
 			}
+			
+			// save as doc
 			return vscode.workspace.applyEdit(edit).then(success => {
 				if (success && this.editor) {
 					if (this.editor.document.isUntitled) {
@@ -91,7 +112,7 @@ export default class PathBuilder {
 								vscode.commands.executeCommand("workbench.action.files.save");
 							})
 						);
-					} 
+					}
 				}
 			});
 		});
@@ -103,14 +124,14 @@ export default class PathBuilder {
 		if (this.isExist(dirName)) {
 			return true;
 		}
-	
+
 		mkdirp(dirName, function (err) {
 		});
+
 		return true;
 	}
 
 	private getDirectoryName(fullPath: string): string {
-		
 		let dir = path.dirname(fullPath);
 		return dir;
 	}
@@ -122,32 +143,40 @@ export default class PathBuilder {
 		return false;
 	}
 
-	private buildPath(): void {
+	private showAlert(msg: string): void {
+		vscode.window.showErrorMessage(msg);
+	}
 
+	private buildPath(): string {
+
+		let fullpath: string = "";
 		if (!this.editor || this.editor.document.getText().length === 0) {
-			return;
+			return fullpath;
 		}
 
 		let rootPath = vscode.workspace.rootPath;
 		if (!rootPath) {
-			vscode.window.showErrorMessage("please opened folder.");
-			return;
+			this.showAlert("please opened folder.");
+			return fullpath;
 		}
 
 		let filename: string = this.buildFilename();
 		if (filename.length === 0) {
-			return;
+			return fullpath;
 		}
+
 		let folderPath: string = this.buildFolderPath();
 		if (filename.slice(0, 1) !== "/") {
 			folderPath += "/";
 		}
-		this.fullPath = folderPath + filename;
+
+		fullpath = folderPath + filename;
+		return fullpath;
 
 	}
 
 	private buildFolderPath(): string {
- 
+
 		let path = vscode.workspace.rootPath;
 		if (path) {
 			path = path.replace(/\\/g, "/");
@@ -157,23 +186,23 @@ export default class PathBuilder {
 
 	private buildFilename(): string {
 
-		let filename: string = this.headingText;
-		if (filename.length < 1) {
+		let headingText: string = this.findHeadingText();
+		if (headingText.length < 1) {
 			return "";
 		}
 
 		// ignore
-		let ignores = [":", "\\*", "\\?", "<", ">", "|", " ","#"];
+		let ignores = [":", "\\*", "\\?", "<", ">", "|", " ", "#"];
 		for (var i = 0; i < ignores.length; i++) {
 			let regExp = new RegExp(ignores[i], "g");
-			filename = filename.replace(regExp, "");
+			headingText = headingText.replace(regExp, "");
 		}
-		if (filename.length < 1) {
+		if (headingText.length < 1) {
 			return "";
 		}
 
 		// dir
-		filename = filename.replace("\\", "/");
+		let filename:string = headingText.replace("\\", "/");
 
 		// full
 		const extension: string = this.config.get('extension', ".md");
@@ -181,13 +210,8 @@ export default class PathBuilder {
 		return filename;
 	}
 
-	private clear(): void {
-		this.headingText = "";
-		this.fullPath = "";
-	}
-
 	public dispose(): void {
-		this.clear();
+
 	}
 
 }

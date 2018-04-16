@@ -1,14 +1,23 @@
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
 const vscode = require("vscode");
-const PathBuilder_1 = require("./PathBuilder");
+const FileHeadingSaver_1 = require("./FileHeadingSaver");
+const PathCompletionProvider_1 = require("./PathCompletionProvider");
 let builder;
+let pathCompletion;
 function activate(context) {
-    builder = new PathBuilder_1.default("save.as.firstline");
-    let disposable = vscode.commands.registerCommand('extension.saveAsFirstline', () => {
+    builder = new FileHeadingSaver_1.default("save.as.firstline");
+    let commandSaveAsFirstline = vscode.commands.registerCommand('extension.saveAsFirstline', () => {
         builder.save();
     });
-    context.subscriptions.push(disposable);
+    let commandPathCompletion = vscode.commands.registerCommand('extension.saveAsFirstline.ListPath', () => {
+        pathCompletion = new PathCompletionProvider_1.default();
+        vscode.languages.registerCompletionItemProvider('*', pathCompletion, ...['/']);
+    });
+    context.subscriptions.push(commandSaveAsFirstline);
+    context.subscriptions.push(commandPathCompletion);
+    pathCompletion = new PathCompletionProvider_1.default();
+    vscode.languages.registerCompletionItemProvider('*', pathCompletion, ...['/']);
 }
 exports.activate = activate;
 function deactivate() {

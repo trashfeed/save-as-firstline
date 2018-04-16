@@ -18,21 +18,35 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:extension.saveAsFirstline"
+        "onCommand:extension.saveAsFirstline",
+        "onCommand:extension.saveAsFirstline.ListPath"
     ],
     "main": "./out/extension",
     "contributes": {
-        "commands": [{
+        "commands": [
+            {
             "command": "extension.saveAsFirstline",
             "title": "Save as first line"
-        }],
+            },
+            {
+            "command": "extension.saveAsFirstline.ListPath",
+            "title": "Save as first line list path"
+            }            
+    ],
         "keybindings": [
             {
                 "command": "extension.saveAsFirstline",
                 "key": "ctrl+shift+h",
                 "mac": "cmd+shift+h",
                 "when": "editorTextFocus"
-            }],
+            },
+            {
+                "command": "extension.saveAsFirstline.ListPath",
+                "key": "ctrl+shift+>",
+                "mac": "cmd+shift+>",
+                "when": "editorTextFocus"
+            }
+        ],
             "configuration": {
             "type": "object",
             "title": "Save as firstline",

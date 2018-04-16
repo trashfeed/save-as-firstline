@@ -1,15 +1,29 @@
 'use strict';
 import * as vscode from 'vscode';
-import PathBuilder from './PathBuilder';
+import FileHeadingSaver from './FileHeadingSaver';
+import PathCompletionProvider from './PathCompletionProvider';
 
-let builder:PathBuilder;
+let builder: FileHeadingSaver;
+let pathCompletion: PathCompletionProvider;
 export function activate(context: vscode.ExtensionContext) {
 
-    builder = new PathBuilder("save.as.firstline");
-    let disposable = vscode.commands.registerCommand('extension.saveAsFirstline', () => {
+    builder = new FileHeadingSaver("save.as.firstline");
+    let commandSaveAsFirstline = vscode.commands.registerCommand('extension.saveAsFirstline', () => {
         builder.save();  
     });
-    context.subscriptions.push(disposable);
+
+    
+    let commandPathCompletion = vscode.commands.registerCommand('extension.saveAsFirstline.ListPath', () => {
+        pathCompletion = new PathCompletionProvider();
+        vscode.languages.registerCompletionItemProvider('*', pathCompletion,...['/']);
+    });    
+
+    context.subscriptions.push(commandSaveAsFirstline);
+    context.subscriptions.push(commandPathCompletion);
+
+    pathCompletion = new PathCompletionProvider();
+    vscode.languages.registerCompletionItemProvider('*', pathCompletion,...['/']);
+
 }
 
 export function deactivate() {
